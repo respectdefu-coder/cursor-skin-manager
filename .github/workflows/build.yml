@@ -1,0 +1,31 @@
+name: Build clean Windows manager
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Build without bundled cursor themes
+        shell: powershell
+        run: ./build.ps1
+      - name: Audit published contents and executable
+        shell: powershell
+        run: ./tools/Audit-Package.ps1
+      - uses: actions/upload-artifact@v7
+        with:
+          name: CursorSkinManager-Windows
+          path: |
+            dist/CursorSkinManager.exe
+            dist/README.md
+          if-no-files-found: error
